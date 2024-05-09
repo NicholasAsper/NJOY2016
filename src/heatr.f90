@@ -132,9 +132,11 @@ contains
    ! internals
    integer::ntemp,local,npkk,i,nz,j,isave,iz,loc,nzq,nz0
    integer::nscr,nend4,nend6,iold,inew,itemp,idone,nb,nw
+   integer::Damage_settings
    real(kr)::time,flag
    integer,parameter::npkmax=28
    integer::mtk(2+npkmax)
+   integer::icntrl(12)
    real(kr)::z(17)
    real(kr),dimension(:),allocatable::tmp
    real(kr),parameter::qtest=99.e6_kr
@@ -161,7 +163,14 @@ contains
    local=0
    iprint=0
    break=0
-   read(nsysi,*) matd,npk,nqa,ntemp,local,iprint,break
+   Damage_settings=0
+   read(nsysi,*) matd,npk,nqa,ntemp,local,iprint,break, Damage_settings
+   !-- Damage Settings Card
+   if (Damage_settings.gt.0) then
+      do i=1,10
+         read(nsysi,*) icntrl(i)
+      enddo
+   end if
    kchk=0
    if (iprint.eq.2) kchk=1
    if (iprint.eq.2) iprint=1
