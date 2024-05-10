@@ -2045,7 +2045,7 @@ contains
    real(kr)::e,zr,ar,zl,al
    ! internals
    real(kr)::el,rel,denom,fl,ep,dam,damage_energy
-   real(kr)::threshold_factor
+   real(kr)::threshold_factor, critical_mass
    real(kr),parameter::twothd=.666666667e0_kr
    real(kr),parameter::threeq=.75e0_kr
    real(kr),parameter::sixth=.166666667e0_kr
@@ -2071,6 +2071,22 @@ contains
       ep=e*rel
       dam=e/(1+fl*(c3*ep**sixth+c4*ep**threeq+ep))
       df=dam
+   endif
+
+
+   !option to inhibit or isolate low recoil mass contributions to dam
+   if ( icntrl(3) .gt. 0) then
+      critical_mass = al - icntrl(3)*1.0
+      if (ar .le. critical_mass) then
+         dam = 0.0
+         df = 0.0
+      endif
+   else if ( icntrl(3) .lt. 0) then
+      critical_mass = al + icntrl(3)*1.0
+      if (ar .ge. critical_mass) then
+         dam = 0.0
+         df = 0.0
+      endif
    endif
 
    damage_energy = df
