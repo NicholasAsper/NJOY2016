@@ -35,6 +35,7 @@ module heatm
    integer::mt458,nply,lfc,ifc1,ifc2,ifc3,ifc4,ifc5,ifc6
    real(kr),dimension(:),allocatable::c458,cpoly,hpoly,afr,anp,agp
    real(kr)::emc2,tm,rtm
+   integer::icntrl(12)
 
    ! target
    integer::izat
@@ -136,7 +137,6 @@ contains
    real(kr)::time,flag
    integer,parameter::npkmax=28
    integer::mtk(2+npkmax)
-   integer::icntrl(12)
    real(kr)::z(17)
    real(kr),dimension(:),allocatable::tmp
    real(kr),parameter::qtest=99.e6_kr
@@ -1962,6 +1962,7 @@ contains
             daml=0
             enx=edis*arat/(4*afact)
             damn=0
+            if (icntrl(1).eq.1) enx=0
          endif
       endif
       return
