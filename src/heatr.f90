@@ -21,7 +21,7 @@ module heatm
    integer::ne,kchk,iprint,lqs(nqamax)
    real(kr),dimension(:),allocatable::qbar
    real(kr)::qa(nqamax),efirst,elast,za,awr,elist(ilmax)
-   real(kr)::break
+   real(kr)::break, break_i
    real(kr)::qdel,etabmax
    integer::mt103,mt104,mt105,mt106,mt107,mt16
    integer::miss4(250),nmiss4
@@ -175,13 +175,13 @@ contains
    select case (icntrl(1))
       
       case(1)  
-         break = 0.0 ! No threshold
+         break_i = 0.0 ! No threshold
       case(2)  
-         break = 2.0*break ! original 3-level Kinchin-Pease damage energy 
+         break_i = 2.0*break ! original 3-level Kinchin-Pease damage energy 
       case(3)
-         break = 2.0*break/0.8 ! NRT damage energy
+         break_i = 2.0*break/0.8 ! NRT damage energy
       case(4)
-         break = break ! sharp transition Kinchin-Pease damage energy 
+         break_i = break ! sharp transition Kinchin-Pease damage energy 
    end select
 
    kchk=0
@@ -2044,7 +2044,8 @@ contains
    ! externals
    real(kr)::e,zr,ar,zl,al
    ! internals
-   real(kr)::el,rel,denom,fl,ep,dam
+   real(kr)::el,rel,denom,fl,ep,dam,damage_energy
+   real(kr)::threshold_factor
    real(kr),parameter::twothd=.666666667e0_kr
    real(kr),parameter::threeq=.75e0_kr
    real(kr),parameter::sixth=.166666667e0_kr
@@ -2071,6 +2072,67 @@ contains
       dam=e/(1+fl*(c3*ep**sixth+c4*ep**threeq+ep))
       df=dam
    endif
+
+   damage_energy = df
+
+   !-- Applying various damage threshold treatments
+
+   select case(icntrl(1))
+      
+      case(0) ! Default
+
+      case(1) ! No threshold
+
+      case(2) ! Original 3-level Kinchin-Pease damage energy 
+         if ( damage_energy .lt. break) then
+            dam = 0.0
+            df  = 0.0
+            threshold_factor = 1.0
+         elseif ( damage_energy .lt. 2.0*break) then
+            if ( dam .le. 0.0) then
+              threshold_factor = 0.0
+            else
+              threshold_factor = 2.0*break/dam
+            endif
+            df = threshold_factor*dam
+         else
+            threshold_factor = 1.0
+            df = threshold_factor*dam
+         endif
+      
+      case(3) ! NRT damage energy
+
+         if ( damage_energy .lt. break) then
+            dam = 0.0
+            df  = 0.0
+            threshold_factor = 1.0
+         elseif ( damage_energy .lt. break_i) then
+            if ( dam .le. 0.0) then
+              threshold_factor = 1.0
+              df = 0.0
+              dam = 0.0
+            else
+              threshold_factor = 2.0*break/0.8/dam
+            endif
+            df = threshold_factor*dam
+            dam = df
+         else 
+            threshold_factor = 1.0
+            df = threshold_factor*dam
+            dam = df
+         endif
+
+      case(4) ! sharp transition Kinchin-Pease damage energy 
+         if ( damage_energy .lt. break) then
+            dam = 0.0
+            df  = 0.0
+            threshold_factor = 1.0
+         else
+            threshold_factor = 1.0
+            df = threshold_factor*dam
+         endif
+   end select
+
    return
    end function df
 
