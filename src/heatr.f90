@@ -165,12 +165,25 @@ contains
    break=0
    Damage_settings=0
    read(nsysi,*) matd,npk,nqa,ntemp,local,iprint,break, Damage_settings
-   !-- Damage Settings Card
+
+   !-- Damage settings card
    if (Damage_settings.gt.0) then
-      do i=1,10
-         read(nsysi,*) icntrl(i)
-      enddo
+         read(nsysi,*) icntrl(1), icntrl(2)
    end if
+
+   !-- Threshold displacement energy treatments
+   select case (icntrl(1))
+      
+      case(1)  
+         break = 0.0 ! No threshold
+      case(2)  
+         break = 2.0*break ! original 3-level Kinchin-Pease damage energy 
+      case(3)
+         break = 2.0*break/0.8 ! NRT damage energy
+      case(4)
+         break = break ! sharp transition Kinchin-Pease damage energy 
+   end select
+
    kchk=0
    if (iprint.eq.2) kchk=1
    if (iprint.eq.2) iprint=1
