@@ -168,9 +168,9 @@ contains
 
    !-- Damage settings card
    if (Damage_settings.gt.0) then
-         read(nsysi,*) icntrl(1), icntrl(2)
+         read(nsysi,*) icntrl(1), icntrl(2), icntrl(3)
    end if
-
+   
    !-- Threshold displacement energy treatments
    select case (icntrl(1))
       
@@ -182,6 +182,21 @@ contains
          break_i = 2.0*break/0.8 ! NRT damage energy
       case(4)
          break_i = break ! sharp transition Kinchin-Pease damage energy 
+
+   end select
+
+   !-- Efficiency/Partition mode
+   select case (icntrl(2))
+      
+   case(0)  
+
+   case(1)  
+
+   case(3)
+
+   case(4)
+
+   
    end select
 
    kchk=0
@@ -2147,6 +2162,7 @@ contains
             threshold_factor = 1.0
             df = threshold_factor*dam
          endif
+
    end select
 
    return
