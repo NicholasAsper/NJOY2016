@@ -2080,9 +2080,13 @@ contains
       denom=(zr**twothd+zl**twothd)**threeq*ar**onep5*sqrt(al)
       fl=c2*zr**twothd*sqrt(zl)*(ar+al)**onep5/denom
       df=0
-   else if (e.lt.break) then
+   else if (e.lt.break .and. icntrl.ne.1 ) then
       df=0
    else
+      el=c1*zr*zl*sqrt(zr**twothd+zl**twothd)*(ar+al)/al
+      rel=1/el
+      denom=(zr**twothd+zl**twothd)**threeq*ar**onep5*sqrt(al)
+      fl=c2*zr**twothd*sqrt(zl)*(ar+al)**onep5/denom
       ep=e*rel
       dam=e/(1+fl*(c3*ep**sixth+c4*ep**threeq+ep))
       df=dam
